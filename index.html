@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Clicker</title>
+  <style>
+    /* Style for the body */
+    body {
+      background-color: #87CEEB; /* Slightly darker blue background */
+      color: black;              /* Black text */
+      font-family: Arial, sans-serif;
+      text-align: center;
+      font-size: 18px;           /* Larger font size */
+    }
+
+    /* Style for buttons */
+    button {
+      background-color: orange;  /* Orange buttons */
+      color: black;              /* Black text on buttons */
+      border: none;
+      border-radius: 12px;       /* Rounded corners */
+      font-weight: bold;         /* Bold text */
+      font-size: 20px;           /* Larger button font size */
+      padding: 15px 30px;        /* Larger padding for bigger buttons */
+      margin: 10px 0;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: darkorange; /* Darker orange on hover */
+    }
+  </style>
+</head>
+<body>
+  <div id="titleScreen">
+    <h1>Super Clicker</h1>
+    <button id="startButton">Start Game</button>
+  </div>
+
+  <div id="gameScreen" style="display: none;">
+    <!-- HTML elements will be created by JavaScript -->
+  </div>
+
+  <!-- Audio element for background music -->
+  <audio id="backgroundMusic" src="retro-game-arcade-short-236130.mp3" loop></audio>
+
+  <!-- Include your JavaScript here -->
+  <script>
+    // Elements for the title screen and game screen
+    const titleScreen = document.getElementById('titleScreen');
+    const startButton = document.getElementById('startButton');
+    const gameScreen = document.getElementById('gameScreen');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+
+    // Start the game when the Start Game button is clicked
+    startButton.addEventListener('click', () => {
+      titleScreen.style.display = 'none';
+      gameScreen.style.display = 'block';
+      backgroundMusic.play(); // Start the background music
+      initializeGame();
+    });
+
+    function initializeGame() {
+      // HTML elements for the game
+      let button = document.createElement('button');
+      button.innerHTML = 'Click me!';
+      gameScreen.appendChild(button);
+
+      let counterDisplay = document.createElement('div');
+      counterDisplay.style.marginTop = '20px';
+      gameScreen.appendChild(counterDisplay);
+
+      // Upgrades
+      let upgradeButton = document.createElement('button');
+      upgradeButton.innerHTML = 'Buy Upgrade (Cost: 50 clicks)';
+      upgradeButton.style.marginTop = '20px';
+      gameScreen.appendChild(upgradeButton);
+
+      let upgradeDisplay = document.createElement('div');
+      upgradeDisplay.innerHTML = 'Clicks per click: 1';
+      upgradeDisplay.style.marginTop = '10px';
+      gameScreen.appendChild(upgradeDisplay);
+
+      // Power-up
+      let powerUpButton = document.createElement('button');
+      powerUpButton.innerHTML = 'Buy Power-Up (Cost: 100 clicks)';
+      powerUpButton.style.marginTop = '20px';
+      gameScreen.appendChild(powerUpButton);
+
+      // Auto Clicker
+      let autoClickerButton = document.createElement('button');
+      autoClickerButton.innerHTML = 'Buy Auto Clicker (Cost: 100,000 clicks)';
+      autoClickerButton.style.marginTop = '20px';
+      gameScreen.appendChild(autoClickerButton);
+
+      // Prestige
+      let prestigeButton = document.createElement('button');
+      prestigeButton.innerHTML = 'Prestige (Reset for +1 click bonus)';
+      prestigeButton.style.marginTop = '20px';
+      gameScreen.appendChild(prestigeButton);
+
+      let prestigeDisplay = document.createElement('div');
+      prestigeDisplay.innerHTML = 'Prestige Bonus: 0';
+      prestigeDisplay.style.marginTop = '10px';
+      gameScreen.appendChild(prestigeDisplay);
+
+      let achievementsDisplay = document.createElement('div');
+      achievementsDisplay.innerHTML = 'Achievements: None';
+      achievementsDisplay.style.marginTop = '20px';
+      gameScreen.appendChild(achievementsDisplay);
+
+      // JavaScript to handle the click counter, upgrades, prestige, and achievements
+      let counter = 0;
+      let clicksPerClick = 1;
+      let upgradeCost = 50;
+      let powerUpCost = 100;
+      let autoClickerCost = 100000;
+      let prestigeBonus = 0;
+      let achievements = [];
+      let autoClickerInterval;
+
+      // Update display function
+      function updateDisplays() {
+        counterDisplay.innerHTML = 'You clicked ' + counter + ' times!';
+        upgradeButton.innerHTML = 'Buy Upgrade (Cost: ' + upgradeCost + ' clicks)';
+        powerUpButton.innerHTML = 'Buy Power-Up (Cost: ' + powerUpCost + ' clicks)';
+        autoClickerButton.innerHTML = 'Buy Auto Clicker (Cost: ' + autoClickerCost + ' clicks)';
+        upgradeDisplay.innerHTML = 'Clicks per click: ' + clicksPerClick;
+        prestigeDisplay.innerHTML = 'Prestige Bonus: ' + prestigeBonus;
+        achievementsDisplay.innerHTML = 'Achievements: ' + (achievements.length ? achievements.join(', ') : 'None');
+      }
+
+      // Click event for the main button
+      button.addEventListener('click', () => {
+        counter += clicksPerClick + prestigeBonus;
+        updateDisplays();
+        checkAchievements();
+      });
+
+      // Click event for the upgrade button
+      upgradeButton.addEventListener('click', () => {
+        if (counter >= upgradeCost) {
+          counter -= upgradeCost;
+          clicksPerClick++;
+          upgradeCost *= 2; // Increase the cost for the next upgrade
+          updateDisplays();
+        } else {
+          alert('Not enough clicks to buy the upgrade!');
+        }
+      });
+
+      // Click event for the power-up button
+      powerUpButton.addEventListener('click', () => {
+        if (counter >= powerUpCost) {
+          counter -= powerUpCost;
+          clicksPerClick *= 2; // Double the clicks per click for the power-up duration
+          setTimeout(() => {
+            clicksPerClick /= 2; // Revert back after 30 seconds
+          }, 30000);
+          updateDisplays();
+        } else {
+          alert('Not enough clicks to buy the power-up!');
+        }
+      });
+
+      // Click event for the auto clicker button
+      autoClickerButton.addEventListener('click', () => {
+        if (counter >= autoClickerCost) {
+          counter -= autoClickerCost;
+          autoClickerInterval = setInterval(() => {
+            counter += clicksPerClick + prestigeBonus;
+            updateDisplays();
+            checkAchievements();
+          }, 1000); // Auto-click every second
+          autoClickerButton.disabled = true; // Disable after purchase
+          updateDisplays();
+        } else {
+          alert('Not enough clicks to buy the auto clicker!');
+        }
+      });
+
+      // Click event for the prestige button
+      prestigeButton.addEventListener('click', () => {
+        if (counter > 100) {
+          prestigeBonus++;
+          counter = 0;
+          clicksPerClick = 1;
+          upgradeCost = 50;
+          powerUpCost = 100;
+          autoClickerCost = 100000;
+          if (autoClickerInterval) clearInterval(autoClickerInterval); // Reset auto clicker
+          autoClickerButton.disabled = false; // Re-enable auto clicker button
+          updateDisplays();
+        } else {
+          alert('You need at least 100 clicks to prestige!');
+        }
+      });
+
+      // Function to check and add achievements
+      function checkAchievements() {
+        if (counter >= 10 && !achievements.includes('10 Clicks')) {
+          achievements.push('10 Clicks');
+          alert('Achievement Unlocked: 10 Clicks');
+        }
+        if (counter >= 100 && !achievements.includes('100 Clicks')) {
+          achievements.push('100 Clicks');
+          alert('Achievement Unlocked: 100 Clicks');
+        }
+        if (counter >= 1000 && !achievements.includes('1000 Clicks')) {
+          achievements.push('1000 Clicks');
+          alert('Achievement Unlocked: 1000 Clicks');
+        }
+        if (counter >= 5000 && !achievements.includes('5000 Clicks')) {
+          achievements.push('5000 Clicks');
+          alert('Achievement Unlocked: 5000 Clicks');
+        }
+        updateDisplays();
+      }
+
+      // Initial display update
+      updateDisplays();
+    }
+  </script>
+</body>
+</html>
